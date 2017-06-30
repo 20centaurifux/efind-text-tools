@@ -52,6 +52,9 @@ discover(RegistrationCtx *ctx, RegisterCallback fn)
 	fn(ctx, "head_endswith", 2, CALLBACK_ARG_TYPE_STRING, CALLBACK_ARG_TYPE_INTEGER);
 	fn(ctx, "tail_endswith", 2, CALLBACK_ARG_TYPE_STRING, CALLBACK_ARG_TYPE_INTEGER);
 	fn(ctx, "count_lines", 0);
+	fn(ctx, "count_match", 1, CALLBACK_ARG_TYPE_STRING);
+	fn(ctx, "count_prefix", 1, CALLBACK_ARG_TYPE_STRING);
+	fn(ctx, "count_suffix", 1, CALLBACK_ARG_TYPE_STRING);
 }
 
 enum { SEEK_RESULT_ABORT, SEEK_RESULT_CONTINUE, SEEK_RESULT_FOUND };
@@ -163,10 +166,10 @@ _seek_tail(FILE *fp, int tail)
 enum { SEARCH_START, SEARCH_ALL, SEARCH_END };
 
 int
-_text_search(const char *filename, const char *query, int mode, int limit)
+_text_search(const char *filename, const char *query, int mode, int limit, bool count_all)
 {
 	FILE *fp;
-	int found = 0;
+	int result = 0;
 
 	if(!query || !*query)
 	{
@@ -190,9 +193,12 @@ _text_search(const char *filename, const char *query, int mode, int limit)
 			}
 		}
 
+		bool finished = false;
+
 		do
 		{
 			bytes = getline(&line, &size, fp);
+			int found = -1;
 
 			if(lineno < INT_MAX)
 			{
@@ -247,8 +253,30 @@ _text_search(const char *filename, const char *query, int mode, int limit)
 						}
 						break;
 				}
+
+				if(found != -1)
+				{
+					if(count_all)
+					{
+						if(result < INT_MAX)
+						{
+							++result;
+						}
+					}
+					else
+					{
+						finished = true;
+						result = found;
+					}
+				}
 			}
-		} while(!found && bytes > 0);
+		} while(!finished && bytes > 0);
+
+		if(ferror(fp))
+		{
+			fprintf(stderr, "Reading of file %s failed.\n", filename);;
+			result = 0;
+		}
 
 		free(line);
 		fclose(fp);
@@ -258,13 +286,13 @@ _text_search(const char *filename, const char *query, int mode, int limit)
 		perror("fopen()");
 	}
 
-	return found;
+	return result;
 }
 
 int
 text_contains(const char *filename, int argc, char *argv[])
 {
-	return _text_search(filename, *argv, SEARCH_ALL, 0);
+	return _text_search(filename, *argv, SEARCH_ALL, 0, false);
 }
 
 int
@@ -273,7 +301,7 @@ head_contains(const char *filename, int argc, char *argv[])
 	char *query = argv[0];
 	int head = *((int *)argv[1]);
 
-	return _text_search(filename, query, SEARCH_ALL, head);
+	return _text_search(filename, query, SEARCH_ALL, head, false);
 }
 
 int
@@ -282,13 +310,13 @@ tail_contains(const char *filename, int argc, char *argv[])
 	char *query = argv[0];
 	int tail = *((int *)argv[1]);
 
-	return _text_search(filename, query, SEARCH_ALL, -tail);
+	return _text_search(filename, query, SEARCH_ALL, -tail, false);
 }
 
 int
 text_startswith(const char *filename, int argc, char *argv[])
 {
-	return _text_search(filename, *argv, SEARCH_START, 0);
+	return _text_search(filename, *argv, SEARCH_START, 0, false);
 }
 
 int
@@ -297,7 +325,7 @@ head_startswith(const char *filename, int argc, char *argv[])
 	char *query = argv[0];
 	int head = *((int *)argv[1]);
 
-	return _text_search(filename, query, SEARCH_START, head);
+	return _text_search(filename, query, SEARCH_START, head, false);
 }
 
 int
@@ -306,13 +334,13 @@ tail_startswith(const char *filename, int argc, char *argv[])
 	char *query = argv[0];
 	int tail = *((int *)argv[1]);
 
-	return _text_search(filename, query, SEARCH_START, -tail);
+	return _text_search(filename, query, SEARCH_START, -tail, false);
 }
 
 int
 text_endswith(const char *filename, int argc, char *argv[])
 {
-	return _text_search(filename, *argv, SEARCH_END, 0);
+	return _text_search(filename, *argv, SEARCH_END, 0, false);
 }
 
 int
@@ -321,7 +349,7 @@ head_endswith(const char *filename, int argc, char *argv[])
 	char *query = argv[0];
 	int head = *((int *)argv[1]);
 
-	return _text_search(filename, query, SEARCH_END, head);
+	return _text_search(filename, query, SEARCH_END, head, false);
 }
 
 int
@@ -330,7 +358,31 @@ tail_endswith(const char *filename, int argc, char *argv[])
 	char *query = argv[0];
 	int tail = *((int *)argv[1]);
 
-	return _text_search(filename, query, SEARCH_END, -tail);
+	return _text_search(filename, query, SEARCH_END, -tail, false);
+}
+
+int
+count_match(const char *filename, int argc, char *argv[])
+{
+	char *query = argv[0];
+
+	return _text_search(filename, query, SEARCH_ALL, 0, true);
+}
+
+int
+count_prefix(const char *filename, int argc, char *argv[])
+{
+	char *query = argv[0];
+
+	return _text_search(filename, query, SEARCH_START, 0, true);
+}
+
+int
+count_suffix(const char *filename, int argc, char *argv[])
+{
+	char *query = argv[0];
+
+	return _text_search(filename, query, SEARCH_END, 0, true);
 }
 
 int
