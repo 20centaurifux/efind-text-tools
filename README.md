@@ -67,6 +67,12 @@ with *query*.
 
 	$ efind . 'tail_endswith("foobar", 20)'
 
+### count\_lines(string: query)
+
+Returns the number of lines.
+
+	$ efind . 'count_lines()>100'
+
 ## Installation
 
 Ensure that GNU Make and GCC (or Clang) is installed on your system. Then
