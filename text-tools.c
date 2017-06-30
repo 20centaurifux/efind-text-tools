@@ -51,6 +51,7 @@ discover(RegistrationCtx *ctx, RegisterCallback fn)
 	fn(ctx, "text_endswith", 1, CALLBACK_ARG_TYPE_STRING);
 	fn(ctx, "head_endswith", 2, CALLBACK_ARG_TYPE_STRING, CALLBACK_ARG_TYPE_INTEGER);
 	fn(ctx, "tail_endswith", 2, CALLBACK_ARG_TYPE_STRING, CALLBACK_ARG_TYPE_INTEGER);
+	fn(ctx, "count_lines", 0);
 }
 
 enum { SEEK_RESULT_ABORT, SEEK_RESULT_CONTINUE, SEEK_RESULT_FOUND };
@@ -330,5 +331,46 @@ tail_endswith(const char *filename, int argc, char *argv[])
 	int tail = *((int *)argv[1]);
 
 	return _text_search(filename, query, SEARCH_END, -tail);
+}
+
+int
+count_lines(const char *filename, int argc, char *argv[])
+{
+	FILE *fp;
+	int lc = 0;
+
+	if((fp = fopen(filename, "r")))
+	{
+		char buffer[8192];
+		size_t bytes;
+
+		do
+		{
+			bytes = fread(buffer, 1, sizeof(buffer), fp);
+
+			if(bytes)
+			{
+				for(size_t i = 0; i < bytes; ++i)
+				{
+					if(buffer[i] == '\n' && lc < INT32_MAX)
+					{
+						++lc;
+					}
+				}
+			}
+			else if(ferror(fp))
+			{
+				lc = 0;
+			}
+		} while(bytes > 0);
+
+		fclose(fp);
+	}
+	else
+	{
+		perror("fopen()");
+	}
+
+	return lc;
 }
 
