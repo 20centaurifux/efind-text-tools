@@ -74,20 +74,20 @@ _seek_and_count(FILE *fp, size_t pos, char *buffer, size_t buf_len, int *lines, 
 	/* fill buffer */
 	read = fread(buffer, 1, buf_len, fp);
 
-	if(read < 0)
+	if(read != buf_len)
+	{
+		fprintf(stderr, "read() failed, expected %zu bytes but received only %zu.\n", buf_len, read);
+		return SEEK_RESULT_ABORT;
+	}
+
+	if(ferror(fp))
 	{
 		perror("fread()");
 		return SEEK_RESULT_ABORT;
 	}
 
-	if(read != buf_len)
-	{
-		fprintf(stderr, "read() failed, expected %ld bytes but received only %ld\n", buf_len, read);
-		return SEEK_RESULT_ABORT;
-	}
-
 	/* count line-break */
-	for(int i = buf_len - 1; i >= 0; --i)
+	for(ssize_t i = buf_len - 1; i >= 0; --i)
 	{
 		if(buffer[i] == '\n')
 		{
@@ -178,7 +178,7 @@ _text_search(const char *filename, const char *query, int mode, int limit, bool 
 
 	if((fp = fopen(filename, "r")))
 	{
-		char *line = (char *)malloc(128);
+		char *line;
 		ssize_t bytes;
 		size_t size = sizeof(line);
 		int lineno = 0;
@@ -194,11 +194,11 @@ _text_search(const char *filename, const char *query, int mode, int limit, bool 
 		}
 
 		bool finished = false;
+		line =  (char *)malloc(128);
 
 		do
 		{
 			bytes = getline(&line, &size, fp);
-			int found = -1;
 
 			if(lineno < INT_MAX)
 			{
@@ -218,6 +218,7 @@ _text_search(const char *filename, const char *query, int mode, int limit, bool 
 			if(bytes > 0)
 			{
 				size_t line_len;
+				int found = -1;
 
 				if(bytes > 2 && line[bytes - 2] == '\r')
 				{
@@ -400,6 +401,12 @@ count_lines(const char *filename, int argc, char *argv[])
 		{
 			bytes = fread(buffer, 1, sizeof(buffer), fp);
 
+			if(ferror(fp))
+			{
+				lc = 0;
+				bytes = 0;
+			}
+
 			if(bytes)
 			{
 				for(size_t i = 0; i < bytes; ++i)
@@ -409,10 +416,6 @@ count_lines(const char *filename, int argc, char *argv[])
 						++lc;
 					}
 				}
-			}
-			else if(ferror(fp))
-			{
-				lc = 0;
 			}
 		} while(bytes > 0);
 
