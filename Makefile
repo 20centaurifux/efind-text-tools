@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-Wall -std=c99 -fPIC -O0 -g -nostartfiles -shared
+CFLAGS=-Wall -std=c99 -fPIC -O2 -nostartfiles -shared
 LIBS=
 
 VERSION=0.1.0
@@ -12,7 +12,7 @@ clean:
 
 install:
 	test -d "$(DESTDIR)/etc/efind/extensions" || mkdir -p "$(DESTDIR)/etc/efind/extensions"
-	cp ./text-tools.so "$(DESTDIR)/etc/efind/extensions/"
+	cp ./text-tools.so "$(DESTDIR)/etc/efind/extensions"
 	chmod 755 "$(DESTDIR)/etc/efind/extensions/text-tools.so"
 
 uninstall:
