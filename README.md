@@ -70,7 +70,7 @@ with  *query*. Returns the line number of the first occurrence.
 
 	$ efind . 'tail_endswith("foobar", 20)'
 
-### count\_lines(string: query)
+### count\_lines()
 
 Returns the number of lines.
 
