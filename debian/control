@@ -1,0 +1,13 @@
+Source: efind-text-tools
+Section: utils
+Priority: optional
+Maintainer: Sebastian Fedrau <sebastian.fedrau@gmail.com>
+Build-Depends: debhelper (>=9)
+Standards-Version: 3.9.6
+Homepage: https://github.com/20centaurifux/efind-text-tools
+Vcs-Git: https://github.com/20centaurifux/efind-text-tools.git
+
+Package: efind-text-tools
+Architecture: any
+Depends: efind (>= 0.1-1), ${shlibs:Depends}
+Description: Filter text files by content.
