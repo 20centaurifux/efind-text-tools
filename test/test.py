@@ -39,7 +39,7 @@ SEARCH_ARGS = [[['name="*.txt" and text_contains("Peter") and text_contains("Pan
                [['type=file and head_contains("PRIDE", 40) or head_contains("CRUSOE", 50)'], ["books/521-0.txt", "books/1342-0.txt"]],
                [['type=file and count_lines()>23000'], ["books/996.txt.utf-8", "books/4300-0.txt"]],
                [['type=file and tail_contains("Wendy", 1000)'], ["books/16-0.txt"]],
-               [['type=file and (count_match("Chapter") = 61 or count_prefix("the") = 1101) and count_suffix("in")>0'], ["books/1342-0.txt", "books/2701-0.txt"]],
+               [['type=file and (count_match("Chapter") = 61 or count_prefix("the") = 1101) and count_suffix("in")>0'], ["books/1342-0.txt"]],
                [['type=file and head_startswith("Author", 20) and tail_endswith("in", 20)'], ["books/521-0.txt"]],
                [['type=file and text_startswith("Author") and text_endswith("Pan")'], ["books/16-0.txt"]],
                [['type=file and head_startswith("diligently", 5000) or tail_startswith("Accordingly,", 5000)'], ["books/521-0.txt", "books/2701-0.txt", "books/829-0.txt"]]]
