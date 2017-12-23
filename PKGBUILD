@@ -1,6 +1,6 @@
 # Maintainer: Sebastian Fedrau <sebastian.fedrau@gmail.com>
 pkgname=efind-text-tools
-pkgver=0.1.0
+pkgver=0.2.0
 pkgrel=1
 epoch=
 pkgdesc="Filter text files by content."
@@ -31,5 +31,5 @@ build() {
 
 package() {
 	cd "$pkgname-$pkgver"
-	make DESTDIR="$pkgdir/" install
+	make DESTDIR="$pkgdir/" LIBDIR=/usr/lib install
 }

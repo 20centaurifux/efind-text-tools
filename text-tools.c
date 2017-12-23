@@ -30,7 +30,7 @@
 #include "extension-interface.h"
 
 #define NAME        "Text-Tools"
-#define VERSION     "0.1.0"
+#define VERSION     "0.2.0"
 #define DESCRIPTION "Tools for searching text files."
 
 void
