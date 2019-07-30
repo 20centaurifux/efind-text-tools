@@ -19,8 +19,9 @@ def test_search(argv, expected, success=True):
 
     print("Running efind, argv=[%s]" % ", ".join(cmd[1:]))
 
-    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    result = filter(lambda l: l != "", str(proc.stdout.read()).split("\n"))
+    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE,
+                            stderr=subprocess.PIPE)
+    result = list(filter(lambda l: l != "", proc.stdout.read().decode("utf-8").split("\n")))
     proc.wait()
 
     if not expected is None:
@@ -40,7 +41,7 @@ SEARCH_ARGS = [[['name="*.txt" and text_contains("Peter") and text_contains("Pan
                [['type=file and count_lines()>23000'], ["books/996.txt.utf-8", "books/4300-0.txt"]],
                [['type=file and tail_contains("Wendy", 1000)'], ["books/16-0.txt"]],
                [['type=file and (count_match("Chapter") = 61 or count_prefix("the") = 1101) and count_suffix("in")>0'], ["books/1342-0.txt"]],
-               [['type=file and head_startswith("Author", 20) and tail_endswith("in", 20)'], ["books/521-0.txt"]],
+               [['type=file and head_startswith("Author", 20) and tail_endswith("in", 20)'], ["books/521-0.txt", "books/4300-0.txt"]],
                [['type=file and text_startswith("Author") and text_endswith("Pan")'], ["books/16-0.txt"]],
                [['type=file and head_startswith("diligently", 5000) or tail_startswith("Accordingly,", 5000)'], ["books/521-0.txt", "books/2701-0.txt", "books/829-0.txt"]]]
 

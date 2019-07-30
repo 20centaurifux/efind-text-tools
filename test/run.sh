@@ -11,7 +11,7 @@
 #  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
 #  General Public License v3 for more details.
 
-PYTHON=/usr/bin/python2
+PYTHON=/usr/bin/python3
 
 download_books()
 {
@@ -23,9 +23,9 @@ download_books()
 
 	while read -r f
 	do
-		local dst=./books/$f
-
-		if [ ! -f $dst ]; then
+		local DST=./books/$f
+	
+		if [ ! -f $DST ]; then
 			local n=$(echo $f | sed -r "s/[a-z]*([0-9]*).*\.txt/\1/")
 
 			wget -P ./books "http://www.gutenberg.org/files/$n/$f"
@@ -51,4 +51,5 @@ cleanup()
 	rm -fr ./books
 }
 
-download_books && run_test && cleanup
+#download_books && run_test && cleanup
+download_books && run_test
